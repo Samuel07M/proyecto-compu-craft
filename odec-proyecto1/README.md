@@ -1,8 +1,4 @@
 # Proyecto Integrador – Organización y Arquitectura de Computadores
-## Estudiantes
-- Nombre: Samuel Molina Garcés 
-- Nombre: Juan Diego Parra Castañeda
-- Nombre: Juan Diego Martinez Jaramillo
 ## Descripción
 Este repositorio contiene la solución al Proyecto Integrador del primer corte
 del curso de Organización y Arquitectura de Computadores.
@@ -62,7 +58,7 @@ agrega cinco operaciones nuevas.
 - EQ
 - ABS
 ---
-# Estructura del Repositorio
+# Estructura del Proyecto 
 ```text
 proyecto01/
 proyecto02/

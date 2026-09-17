@@ -33,4 +33,4 @@ proyecto-compu-craft/
 └── README.md            # Presentación general del repositorio
 
 ```
-Consulte el README.md interno en odec-proyecto1/ y en odec-proyecto2/ para ver los detalles de cada chip y sus pruebas.
+Consulte el README.md interno en odec-proyecto1/ y en odec-proyecto2/ para ver los detalles de cada proyecto junto a sus entregables.

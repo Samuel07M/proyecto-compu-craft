@@ -1,0 +1,69 @@
+CHIP CPU {
+    IN  inM[16],
+        instruction[16],
+        reset;
+
+    OUT outM[16],
+        writeM,
+        addressM[15],
+        pc[15];
+
+    PARTS:
+    // Identificar si es instrucción C
+    Not(in=instruction[15], out=isAInstr);
+    
+    // Mux para la entrada del Registro A, viene de la instrucción si es A-instr, o de ALUout si es C-instr
+    Mux16(a=instruction, b=ALUout, sel=instruction[15], out=inRegA);
+    
+    // Cargar Registro A si es A-instruction O si d1 (instruction[5]) es 1 en C-instruction
+    Or(a=isAInstr, b=instruction[5], out=loadA);
+    ARegister(in=inRegA, load=loadA, out=outA, out[0..14]=addressM);
+
+    // Seleccionar entre Registro A e inM usando el bit a (instruction[12])
+    Mux16(a=outA, b=inM, sel=instruction[12], out=outAorM);
+
+    // Cargar Registro D solo si es C-instruction y d2 (instruction[4]) es 1
+    And(a=instruction[15], b=instruction[4], out=loadD);
+    DRegister(in=ALUout, load=loadD, out=outD);
+
+    // ALU
+    ALU(
+        x=outD, 
+        y=outAorM, 
+        zx=instruction[11], 
+        nx=instruction[10], 
+        zy=instruction[9], 
+        ny=instruction[8], 
+        f=instruction[7], 
+        no=instruction[6], 
+        out=ALUout, 
+        out=outM, 
+        zr=zr, 
+        ng=ng
+    );
+
+    // Escribir en M solo si es C-instruction y d3 (instruction[3]) es 1
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+    // Determinar si el resultado de la ALU es positivo (no cero y no negativo)
+    Or(a=zr, b=ng, out=zrOrNg);
+    Not(in=zrOrNg, out=pos);
+
+    // Evaluar las 3 condiciones de salto básicas (j3->GT, j2->EQ, j1->LT)
+    And(a=instruction[0], b=pos, out=jgt);
+    And(a=instruction[1], b=zr,  out=jeq);
+    And(a=instruction[2], b=ng,  out=jlt);
+
+    // Combinar condiciones de salto
+    Or(a=jgt, b=jeq, out=jge);
+    Or(a=jge, b=jlt, out=jumpCond);
+
+    // Saltar solo si se cumple la condición Y es una C-instruction
+    And(a=instruction[15], b=jumpCond, out=pcLoad);
+    
+    // Incrementar siempre que no haya salto
+    Not(in=pcLoad, out=pcInc);
+
+    // Contador de Programa
+    PC(in=outA, load=pcLoad, inc=pcInc, reset=reset, out[0..14]=pc);
+}

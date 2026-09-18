@@ -33,7 +33,7 @@
     A=M      
     D=M      
 
-    //Escribir el valor en la memoria de DESTINO usando el puntero 'dest'
+    //Escribir el valor en la memoria de DESTINO usando el puntero dest
     @dest
     A=M      
     M=D      

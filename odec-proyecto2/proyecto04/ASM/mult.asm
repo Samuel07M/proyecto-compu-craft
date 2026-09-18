@@ -1,4 +1,4 @@
-// R2= R0 * R1
+// R2 = R0 * R1
     //Inicializar R2 = 0
     @R2
     M=0

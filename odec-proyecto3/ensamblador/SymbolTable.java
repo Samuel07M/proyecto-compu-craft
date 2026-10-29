@@ -1,12 +1,12 @@
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * SymbolTable: tabla hash nombre -> dirección.
- * Se inicializa con los símbolos predefinidos; luego la primera pasada
- * agrega las etiquetas (dirección ROM) y la segunda las variables
- * (dirección RAM desde 16, en orden de primera aparición).
- */
+/*
+   SymbolTable: tabla hash nombre -> dirección.
+   Se inicializa con los símbolos predefinidos; luego la primera pasada
+   agrega las etiquetas (dirección ROM) y la segunda las variables
+   (dirección RAM desde 16, en orden de primera aparición)
+*/
 public class SymbolTable {
 
     private static final Map<String, Integer> PREDEFINED = new HashMap<String, Integer>();

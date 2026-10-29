@@ -1,11 +1,11 @@
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * DisCode: tablas inversas (binario -> mnemónico) de la sección 7.
- * Son las mismas tablas del ensamblador, pero con la clave y el valor
- * intercambiados.
- */
+/*
+   DisCode: tablas inversas (binario -> mnemónico) de la sección 7
+   Son las mismas tablas del ensamblador, pero con la clave y el valor
+   intercambiados
+*/
 public class DisCode {
 
     private static final Map<String, String> COMP = new HashMap<String, String>();
@@ -64,7 +64,7 @@ public class DisCode {
         JUMP.put("111", "JMP");
     }
 
-    /** Mnemónico comp para los 7 bits a c1..c6, o null si no existe. */
+    // Mnemónico comp para los 7 bits a c1..c6, o null si no existe
     public static String comp(String bits) {
         return COMP.get(bits);
     }

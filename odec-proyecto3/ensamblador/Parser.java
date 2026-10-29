@@ -6,22 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Parser: lee el archivo .asm, limpia cada línea (comentarios y espacios)
- * y valida su sintaxis según la sección 7. Si la línea es inválida lanza
- * AsmError con el número de línea real del archivo.
- */
+/*
+   Parser: lee el archivo .asm, limpia cada línea (comentarios y espacios)
+   y valida su sintaxis según la sección 7. Si la línea es inválida lanza
+   AsmError con el número de línea real del archivo
+*/
 public class Parser {
 
-    /** Símbolo: letras, dígitos, _ . $ : y que no empiece por dígito. */
+    // Símbolo: letras, dígitos, _ . $ : y que no empiece por dígito
     private static final Pattern SYMBOL = Pattern.compile("[A-Za-z_.$:][A-Za-z0-9_.$:]*");
     private static final Pattern DIGITS = Pattern.compile("[0-9]+");
 
-    /**
-     * Lee todas las líneas del archivo SIN descartar ninguna, para que la
-     * posición i de la lista corresponda a la línea i+1 del archivo.
-     * Acepta fin de línea CRLF y LF.
-     */
+    /*
+       Lee todas las líneas del archivo SIN descartar ninguna, para que la
+       posición i de la lista corresponda a la línea i+1 del archivo.
+       Acepta fin de línea CRLF y LF
+    */
     public static List<String> readLines(String path) throws IOException {
         String text = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
         if (text.startsWith("﻿")) {          // BOM de algunos editores de Windows
@@ -37,7 +37,7 @@ public class Parser {
         return lines;
     }
 
-    /** Quita el comentario (// ...) y TODOS los espacios y tabulaciones. */
+    // Quita el comentario (// ...) y TODOS los espacios y tabulaciones
     public static String clean(String raw) {
         int comment = raw.indexOf("//");
         if (comment != -1) {
@@ -57,10 +57,10 @@ public class Parser {
         return SYMBOL.matcher(s).matches();
     }
 
-    /**
-     * Analiza una línea. Devuelve null si está vacía (o solo tiene
-     * comentario), o la instrucción validada. Lanza AsmError si es inválida.
-     */
+    /*
+       Analiza una línea. Devuelve null si está vacía (o solo tiene
+       comentario), o la instrucción validada. Lanza AsmError si es inválida
+    */
     public static Instruction parseLine(String raw, int lineNo) throws AsmError {
         String s = clean(raw);
         if (s.isEmpty()) {
@@ -78,7 +78,7 @@ public class Parser {
         return parseC(s, lineNo);
     }
 
-    // ---------------------------------------------------------------- A
+    // A
     private static Instruction parseA(String s, int lineNo) throws AsmError {
         String value = s.substring(1);
         if (value.isEmpty()) {
@@ -88,7 +88,8 @@ public class Parser {
             if (!DIGITS.matcher(value).matches()) {
                 throw new AsmError(lineNo, "símbolo inválido '" + value + "' (no puede empezar por dígito)");
             }
-            if (value.length() > 5 || Integer.parseInt(value) > 32767) {
+            String sinCeros = value.replaceFirst("^0+(?!$)", "");
+            if (sinCeros.length() > 5 || Integer.parseInt(sinCeros) > 32767) {
                 throw new AsmError(lineNo, "constante fuera de rango '" + value + "' (debe estar entre 0 y 32767)");
             }
             return Instruction.a(lineNo, value);
@@ -102,7 +103,7 @@ public class Parser {
         return Instruction.a(lineNo, value);
     }
 
-    // ---------------------------------------------------------------- L
+    // L
     private static Instruction parseLabel(String s, int lineNo) throws AsmError {
         if (!s.endsWith(")") || s.length() < 2) {
             throw new AsmError(lineNo, "etiqueta sin paréntesis de cierre '" + s + "'");
@@ -120,7 +121,7 @@ public class Parser {
         return Instruction.label(lineNo, name);
     }
 
-    // ---------------------------------------------------------------- C
+    // C
     private static Instruction parseC(String s, int lineNo) throws AsmError {
         int eqCount = count(s, '=');
         int semiCount = count(s, ';');

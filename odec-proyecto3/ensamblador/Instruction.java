@@ -1,19 +1,19 @@
-/**
- * Instrucción ya validada por el Parser.
- *  - A: symbol = constante decimal o símbolo (sin la @)
- *  - C: dest, comp, jump (dest y jump pueden ser "")
- *  - L: symbol = nombre de la etiqueta (sin paréntesis)
- */
+/*
+   Instrucción ya validada por el Parser
+    - A: symbol = constante decimal o símbolo (sin la @)
+    - C: dest, comp, jump (dest y jump pueden ser "")
+    - L: symbol = nombre de la etiqueta (sin paréntesis)
+*/
 public class Instruction {
 
     public enum Type { A, C, L }
 
     public final Type type;
-    public final int line;      // línea del archivo fuente (desde 1)
+    public final int line; // línea del archivo fuente (desde 1)
     public final String symbol; // A y L
-    public final String dest;   // C
-    public final String comp;   // C
-    public final String jump;   // C
+    public final String dest; // C
+    public final String comp; // C
+    public final String jump; // C
 
     private Instruction(Type type, int line, String symbol, String dest, String comp, String jump) {
         this.type = type;
@@ -36,7 +36,7 @@ public class Instruction {
         return new Instruction(Type.C, line, null, dest, comp, jump);
     }
 
-    /** true si el valor de una instrucción A es una constante decimal. */
+    // true si el valor de una instrucción A es una constante decimal
     public boolean isConstant() {
         return type == Type.A && Character.isDigit(symbol.charAt(0));
     }

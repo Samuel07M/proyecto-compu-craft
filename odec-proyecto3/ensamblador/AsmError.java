@@ -1,8 +1,8 @@
-/**
- * Error de traducción detectado en una línea del archivo .asm.
- * Guarda el número de línea (contando desde 1, incluyendo comentarios y
- * líneas en blanco) para imprimir: ERROR *** Línea N: mensaje
- */
+/*
+   Error de traducción detectado en una línea del archivo .asm
+   Guarda el número de línea (contando desde 1, incluyendo comentarios y
+   líneas en blanco) para imprimir: ERROR *** Línea N: mensaje
+*/
 public class AsmError extends Exception {
 
     private final int line;

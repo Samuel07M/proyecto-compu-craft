@@ -11,18 +11,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * HackAssembler: traduce Prog.asm a Prog.hack en dos pasadas.
- *
- *  Primera pasada: recorre TODAS las líneas en orden, valida su sintaxis y
- *                  registra cada etiqueta con su dirección ROM. Así el primer
- *                  error que se reporta es siempre el de menor número de línea.
- *  Segunda pasada: traduce cada instrucción A y C. Los símbolos que no son
- *                  predefinidos ni etiquetas son variables (RAM desde 16).
- *
- * Ante un error imprime "ERROR *** Línea N: mensaje", no genera el archivo
- * de salida y termina con código 1.
- */
+/*
+   HackAssembler: traduce Prog.asm a Prog.hack en dos pasadas
+  
+    Primera pasada: recorre TODAS las líneas en orden, valida su sintaxis y
+                    registra cada etiqueta con su dirección ROM. Así el primer
+                    error que se reporta es siempre el de menor número de línea
+    Segunda pasada: traduce cada instrucción A y C. Los símbolos que no son
+                    predefinidos ni etiquetas son variables (RAM desde 16)
+  
+   Ante un error imprime "ERROR *** Línea N: mensaje", no genera el archivo
+   de salida y termina con código 1
+*/
 public class HackAssembler {
 
     public static void main(String[] args) {
@@ -66,7 +66,7 @@ public class HackAssembler {
         List<Instruction> program = new ArrayList<Instruction>();
         Map<String, Integer> labelLine = new HashMap<String, Integer>();
 
-        // ---------------- Primera pasada: validación + etiquetas ----------------
+        // Primera pasada: validación + etiquetas
         int romAddress = 0;
         for (int i = 0; i < lines.size(); i++) {
             int lineNo = i + 1;
@@ -88,7 +88,7 @@ public class HackAssembler {
             }
         }
 
-        // ---------------- Segunda pasada: traducción + variables ----------------
+        // Segunda pasada: traducción + variables
         String nl = System.lineSeparator();
         StringBuilder sb = new StringBuilder(program.size() * 18);
         int nextVariable = 16;
@@ -124,7 +124,7 @@ public class HackAssembler {
         return sb.append(b).toString();
     }
 
-    /** Salida estándar en UTF-8 para que "Línea" se vea igual en Git Bash. */
+    // Salida estándar en UTF-8 para que "Línea" se vea igual en Git Bash
     private static PrintStream utf8Stdout() {
         try {
             PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out), true, "UTF-8");

@@ -1,11 +1,11 @@
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Code: traduce los mnemónicos dest, comp y jump a binario.
- * Solo acepta los mnemónicos EXACTOS de las tablas de la sección 7
- * (1.ª edición). Cualquier otra escritura devuelve null (= error).
- */
+/*
+   Code: traduce los mnemónicos dest, comp y jump a binario
+   Solo acepta los mnemónicos EXACTOS de las tablas de la sección 7
+   (1.ª edición). Cualquier otra escritura devuelve null (= error)
+*/
 public class Code {
 
     private static final Map<String, String> COMP = new HashMap<String, String>();
@@ -64,17 +64,17 @@ public class Code {
         JUMP.put("JMP", "111");
     }
 
-    /** 7 bits de comp, o null si el mnemónico no existe. */
+    // 7 bits de comp, o null si el mnemónico no existe
     public static String comp(String mnemonic) {
         return COMP.get(mnemonic);
     }
 
-    /** 3 bits de dest, o null si el mnemónico no existe. */
+    // 3 bits de dest, o null si el mnemónico no existe
     public static String dest(String mnemonic) {
         return DEST.get(mnemonic);
     }
 
-    /** 3 bits de jump, o null si el mnemónico no existe. */
+    // 3 bits de jump, o null si el mnemónico no existe
     public static String jump(String mnemonic) {
         return JUMP.get(mnemonic);
     }

@@ -10,20 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-/**
- * HackDisassembler: traduce Prog.hack a ProgDis.asm.
- *
- *  1. Lee y valida cada línea en orden (longitud, caracteres, bits 14-13,
- *     código de cómputo). El primer error detiene el programa.
- *  2. Busca los saltos de la regla 9.1: instrucción i es C con salto y la
- *     instrucción i-1 es A con valor v <= n. Cada destino v distinto recibe
- *     una etiqueta L0, L1, ... (ordenadas por dirección).
- *  3. Escribe el programa: (Lk) antes de la instrucción v (o al final si
- *     v == n) y @Lk en lugar de @v en la instrucción i-1.
- *
- * Ante un error imprime "ERROR *** Línea N: mensaje", no genera el archivo
- * de salida y termina con código 1.
- */
+/*
+   HackDisassembler: traduce Prog.hack a ProgDis.asm
+  
+    1. Lee y valida cada línea en orden (longitud, caracteres, bits 14-13,
+       código de cómputo). El primer error detiene el programa
+    2. Busca los saltos de la regla 9.1: instrucción i es C con salto y la
+       instrucción i-1 es A con valor v <= n. Cada destino v distinto recibe
+       una etiqueta L0, L1, ... (ordenadas por dirección)
+    3. Escribe el programa: (Lk) antes de la instrucción v (o al final si
+       v == n) y @Lk en lugar de @v en la instrucción i-1
+  
+   Ante un error imprime "ERROR *** Línea N: mensaje", no genera el archivo
+   de salida y termina con código 1
+*/
 public class HackDisassembler {
 
     public static void main(String[] args) {
@@ -63,11 +63,11 @@ public class HackDisassembler {
         System.exit(0);
     }
 
-    /**
-     * Lee las líneas aceptando CRLF y LF. Solo el ÚLTIMO salto de línea es
-     * opcional: una línea vacía en medio (o al final después del salto final)
-     * se conserva para que la validación la reporte como error de longitud.
-     */
+    /*
+       Lee las líneas aceptando CRLF y LF. Solo el ÚLTIMO salto de línea es
+       opcional: una línea vacía en medio (o al final después del salto final)
+       se conserva para que la validación la reporte como error de longitud
+    */
     static List<String> readLines(String path) throws IOException {
         String text = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
         if (text.startsWith("﻿")) {
@@ -80,7 +80,7 @@ public class HackDisassembler {
         String[] parts = text.split("\n", -1);
         int count = parts.length;
         if (text.endsWith("\n")) {
-            count--;                       // el salto de línea final es opcional
+            count--; // El salto de línea final es opcional
         }
         for (int i = 0; i < count; i++) {
             String line = parts[i];
@@ -92,7 +92,7 @@ public class HackDisassembler {
         return lines;
     }
 
-    /** Valida una línea según la sección 10.2. */
+    // Valida una línea
     static void validate(String s, int lineNo) throws DisError {
         if (s.length() != 16) {
             throw new DisError(lineNo, "la instrucción debe tener 16 caracteres y tiene " + s.length());
@@ -118,13 +118,13 @@ public class HackDisassembler {
     static String disassemble(List<String> lines) throws DisError {
         int n = lines.size();
 
-        // ---------------- 1. Validación ----------------
+        // 1. Validación
         for (int i = 0; i < n; i++) {
             validate(lines.get(i), i + 1);
         }
 
-        // ---------------- 2. Destinos de salto (regla 9.1) ----------------
-        boolean[] usesLabel = new boolean[n];               // la instrucción A i-1 se escribe @Lk
+        // 2. Destinos de salto
+        boolean[] usesLabel = new boolean[n]; // la instrucción A i-1 se escribe @Lk
         TreeMap<Integer, String> labels = new TreeMap<Integer, String>(); // dirección -> nombre
         for (int i = 1; i < n; i++) {
             String cur = lines.get(i);
@@ -143,7 +143,7 @@ public class HackDisassembler {
             labels.put(address, "L" + (k++));
         }
 
-        // ---------------- 3. Escritura ----------------
+        // 3. Escritura
         String nl = System.lineSeparator();
         StringBuilder sb = new StringBuilder(n * 12);
         for (int i = 0; i < n; i++) {
@@ -172,7 +172,7 @@ public class HackDisassembler {
             }
             sb.append(nl);
         }
-        if (labels.containsKey(n)) {                         // salto a v == n
+        if (labels.containsKey(n)) { // salto a v == n
             sb.append('(').append(labels.get(n)).append(')').append(nl);
         }
         return sb.toString();

@@ -1,45 +1,43 @@
 import java.util.HashMap;
+import java.util.Map;
 
 /**
- * SymbolTable: mantiene la correspondencia entre nombres simbólicos (etiquetas
- * y variables) y direcciones de memoria/ROM.
- *
- * Se inicializa con los símbolos predefinidos del lenguaje Hack: R0..R15,
- * SCREEN, KBD, SP, LCL, ARG, THIS y THAT.
+ * SymbolTable: tabla hash nombre -> dirección.
+ * Se inicializa con los símbolos predefinidos; luego la primera pasada
+ * agrega las etiquetas (dirección ROM) y la segunda las variables
+ * (dirección RAM desde 16, en orden de primera aparición).
  */
 public class SymbolTable {
 
-    private final HashMap<String, Integer> table;
+    private static final Map<String, Integer> PREDEFINED = new HashMap<String, Integer>();
 
-    public SymbolTable() {
-        table = new HashMap<>();
-
-        // Registros R0..R15 (direcciones 0 a 15)
+    static {
         for (int i = 0; i <= 15; i++) {
-            table.put("R" + i, i);
+            PREDEFINED.put("R" + i, i);
         }
-
-        // Símbolos predefinidos del lenguaje Hack
-        table.put("SP", 0);
-        table.put("LCL", 1);
-        table.put("ARG", 2);
-        table.put("THIS", 3);
-        table.put("THAT", 4);
-        table.put("SCREEN", 16384);
-        table.put("KBD", 24576);
+        PREDEFINED.put("SP", 0);
+        PREDEFINED.put("LCL", 1);
+        PREDEFINED.put("ARG", 2);
+        PREDEFINED.put("THIS", 3);
+        PREDEFINED.put("THAT", 4);
+        PREDEFINED.put("SCREEN", 16384);
+        PREDEFINED.put("KBD", 24576);
     }
 
-    /** Agrega el par (symbol, address) a la tabla. */
+    private final Map<String, Integer> table = new HashMap<String, Integer>(PREDEFINED);
+
+    public static boolean isPredefined(String symbol) {
+        return PREDEFINED.containsKey(symbol);
+    }
+
     public void addEntry(String symbol, int address) {
         table.put(symbol, address);
     }
 
-    /** Indica si la tabla de símbolos ya contiene el símbolo dado. */
     public boolean contains(String symbol) {
         return table.containsKey(symbol);
     }
 
-    /** Devuelve la dirección asociada al símbolo. */
     public int getAddress(String symbol) {
         return table.get(symbol);
     }

@@ -1,84 +1,81 @@
 import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Code: traduce cada mnemónico de Hack assembly (dest, comp, jump) al código
- * binario correspondiente, según la especificación del lenguaje Hack.
+ * Code: traduce los mnemónicos dest, comp y jump a binario.
+ * Solo acepta los mnemónicos EXACTOS de las tablas de la sección 7
+ * (1.ª edición). Cualquier otra escritura devuelve null (= error).
  */
 public class Code {
 
-    private final HashMap<String, String> compTable;
-    private final HashMap<String, String> jumpTable;
+    private static final Map<String, String> COMP = new HashMap<String, String>();
+    private static final Map<String, String> DEST = new HashMap<String, String>();
+    private static final Map<String, String> JUMP = new HashMap<String, String>();
 
-    public Code() {
-        // Tabla "comp": 7 bits -> a + c1 c2 c3 c4 c5 c6
-        compTable = new HashMap<>();
-        compTable.put("0", "0101010");
-        compTable.put("1", "0111111");
-        compTable.put("-1", "0111010");
-        compTable.put("D", "0001100");
-        compTable.put("A", "0110000");
-        compTable.put("!D", "0001101");
-        compTable.put("!A", "0110001");
-        compTable.put("-D", "0001111");
-        compTable.put("-A", "0110011");
-        compTable.put("D+1", "0011111");
-        compTable.put("A+1", "0110111");
-        compTable.put("D-1", "0001110");
-        compTable.put("A-1", "0110010");
-        compTable.put("D+A", "0000010");
-        compTable.put("D-A", "0010011");
-        compTable.put("A-D", "0000111");
-        compTable.put("D&A", "0000000");
-        compTable.put("D|A", "0010101");
-        compTable.put("M", "1110000");
-        compTable.put("!M", "1110001");
-        compTable.put("-M", "1110011");
-        compTable.put("M+1", "1110111");
-        compTable.put("M-1", "1110010");
-        compTable.put("D+M", "1000010");
-        compTable.put("D-M", "1010011");
-        compTable.put("M-D", "1000111");
-        compTable.put("D&M", "1000000");
-        compTable.put("D|M", "1010101");
+    static {
+        // comp -> a c1 c2 c3 c4 c5 c6  (28 mnemónicos)
+        COMP.put("0",   "0101010");
+        COMP.put("1",   "0111111");
+        COMP.put("-1",  "0111010");
+        COMP.put("D",   "0001100");
+        COMP.put("A",   "0110000");
+        COMP.put("!D",  "0001101");
+        COMP.put("!A",  "0110001");
+        COMP.put("-D",  "0001111");
+        COMP.put("-A",  "0110011");
+        COMP.put("D+1", "0011111");
+        COMP.put("A+1", "0110111");
+        COMP.put("D-1", "0001110");
+        COMP.put("A-1", "0110010");
+        COMP.put("D+A", "0000010");
+        COMP.put("D-A", "0010011");
+        COMP.put("A-D", "0000111");
+        COMP.put("D&A", "0000000");
+        COMP.put("D|A", "0010101");
+        COMP.put("M",   "1110000");
+        COMP.put("!M",  "1110001");
+        COMP.put("-M",  "1110011");
+        COMP.put("M+1", "1110111");
+        COMP.put("M-1", "1110010");
+        COMP.put("D+M", "1000010");
+        COMP.put("D-M", "1010011");
+        COMP.put("M-D", "1000111");
+        COMP.put("D&M", "1000000");
+        COMP.put("D|M", "1010101");
 
-        // Tabla "jump": 3 bits -> j1 j2 j3
-        jumpTable = new HashMap<>();
-        jumpTable.put("", "000");
-        jumpTable.put("JGT", "001");
-        jumpTable.put("JEQ", "010");
-        jumpTable.put("JGE", "011");
-        jumpTable.put("JLT", "100");
-        jumpTable.put("JNE", "101");
-        jumpTable.put("JLE", "110");
-        jumpTable.put("JMP", "111");
+        // dest -> d1 d2 d3  (7 mnemónicos + vacío)
+        DEST.put("",    "000");
+        DEST.put("M",   "001");
+        DEST.put("D",   "010");
+        DEST.put("MD",  "011");
+        DEST.put("A",   "100");
+        DEST.put("AM",  "101");
+        DEST.put("AD",  "110");
+        DEST.put("AMD", "111");
+
+        // jump -> j1 j2 j3  (7 mnemónicos + vacío)
+        JUMP.put("",    "000");
+        JUMP.put("JGT", "001");
+        JUMP.put("JEQ", "010");
+        JUMP.put("JGE", "011");
+        JUMP.put("JLT", "100");
+        JUMP.put("JNE", "101");
+        JUMP.put("JLE", "110");
+        JUMP.put("JMP", "111");
     }
 
-    /**
-     * Traduce el campo dest (cualquier permutación de A, D, M) a sus 3 bits
-     * (d1 d2 d3 -> A D M).
-     */
-    public String dest(String mnemonic) {
-        char d1 = mnemonic.contains("A") ? '1' : '0';
-        char d2 = mnemonic.contains("D") ? '1' : '0';
-        char d3 = mnemonic.contains("M") ? '1' : '0';
-        return "" + d1 + d2 + d3;
+    /** 7 bits de comp, o null si el mnemónico no existe. */
+    public static String comp(String mnemonic) {
+        return COMP.get(mnemonic);
     }
 
-    /** Traduce el campo comp a sus 7 bits (a c1 c2 c3 c4 c5 c6). */
-    public String comp(String mnemonic) {
-        String bits = compTable.get(mnemonic);
-        if (bits == null) {
-            throw new IllegalArgumentException("Mnemónico 'comp' inválido: " + mnemonic);
-        }
-        return bits;
+    /** 3 bits de dest, o null si el mnemónico no existe. */
+    public static String dest(String mnemonic) {
+        return DEST.get(mnemonic);
     }
 
-    /** Traduce el campo jump a sus 3 bits (j1 j2 j3). */
-    public String jump(String mnemonic) {
-        String bits = jumpTable.get(mnemonic);
-        if (bits == null) {
-            throw new IllegalArgumentException("Mnemónico 'jump' inválido: " + mnemonic);
-        }
-        return bits;
+    /** 3 bits de jump, o null si el mnemónico no existe. */
+    public static String jump(String mnemonic) {
+        return JUMP.get(mnemonic);
     }
 }

@@ -10,7 +10,7 @@
 ## Descripción del Repositorio
 Este repositorio contiene el desarrollo completo de las prácticas de hardware y lenguaje ensamblador para el curso de **Organización de Computadores (Universidad EAFIT)**, basadas en la plataforma **Nand2Tetris** y extendidas con componentes académicos específicos del curso.
 
-El proyecto se encuentra estructurado en dos grandes entregas principales:
+El proyecto se encuentra estructurado en tres grandes entregas principales:
 
 ---
 
@@ -30,7 +30,17 @@ proyecto-compu-craft/
 │   ├── proyecto05/      # Hardware de la Hack Computer (Memory, CPU, Computer)
 │   └── README.md        # Documentación técnica detallada del Proyecto 2
 │
+├── odec-proyecto3/      # Entrega 3: Ensamblador y Desensamblador Hack (Nand2Tetris 6 + Desensamblador)
+│   ├── ensamblador/     # Código fuente del ensamblador (Java): Prog.asm -> Prog.hack
+│   ├── desensamblador/  # Código fuente del desensamblador (Java): Prog.hack -> ProgDis.asm
+│   ├── pruebas/         # Programas válidos y casos de error propios
+│   ├── DOCUMENTACION/   # Informe técnico (INFORME.md)
+│   ├── compilar.sh      # Compila la solución
+│   ├── ensamblador.sh   # Ejecuta el ensamblador
+│   ├── desensamblador.sh # Ejecuta el desensamblador
+│   └── README.md        # Documentación técnica detallada del Proyecto 3
+│
 └── README.md            # Presentación general del repositorio
 
 ```
-Consulte el README.md interno en odec-proyecto1/ y en odec-proyecto2/ para ver los detalles de cada proyecto junto a sus entregables.
+Consulte el README.md interno en odec-proyecto1/, odec-proyecto2/ y odec-proyecto3/ para ver los detalles de cada proyecto junto a sus entregables.

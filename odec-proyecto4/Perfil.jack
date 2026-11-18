@@ -1,0 +1,53 @@
+/*********
+* Perfil.jack - Datos de un tipo de obstaculo: largo en celdas, velocidad,
+* si quita vidas y cuantos puntos da. Los cuatro tipos del juego (cono,
+* camion, moto y moneda) son cuatro objetos Perfil, no cuatro clases.
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
+class Perfil {
+    field int miTipo, miLargo, miVelocidad, misPuntos;
+    field boolean esLetal;
+
+    /** Crea el perfil de un tipo de obstaculo con sus datos. */
+    constructor Perfil new(int tipo, int largo, int velocidad, boolean letal, int puntos) {
+        let miTipo = tipo;
+        let miLargo = largo;
+        let miVelocidad = velocidad;
+        let esLetal = letal;
+        let misPuntos = puntos;
+        return this;
+    }
+
+    /** Libera el perfil. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Tipo: 0 cono, 1 camion, 2 moto, 3 moneda. */
+    method int tipo() {
+        return miTipo;
+    }
+
+    /** Largo en celdas. */
+    method int largo() {
+        return miLargo;
+    }
+
+    /** Celdas que avanza por paso. */
+    method int velocidad() {
+        return miVelocidad;
+    }
+
+    /** true si quita una vida al tocar el carro. */
+    method boolean letal() {
+        return esLetal;
+    }
+
+    /** Puntos que suma al tocar el carro (0 si es letal). */
+    method int puntos() {
+        return misPuntos;
+    }
+}

@@ -1,0 +1,293 @@
+/*********
+* Carrera.jack - Logica del juego de carriles (seccion 8 del enunciado).
+* No usa Screen, Output, Keyboard, Grafico ni Sys.wait, ni directamente ni
+* a traves de las clases que usa: dibujar y leer el teclado lo hacen otras.
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
+class Carrera {
+    field Array obs, catalogo;
+    field int cuantos, carrilActual, pedido, meta;
+    field int nVidas, nPuntaje, nProgreso, nEstado;
+
+    /** Carrera nueva: carro en el carril 1, 3 vidas, sin obstaculos. */
+    constructor Carrera new(int pasosMeta, int semilla) {
+        let obs = Array.new(20);
+        let catalogo = Array.new(4);
+        let cuantos = 0;
+        let carrilActual = 1;
+        let pedido = 0;
+        let meta = pasosMeta;
+        let nVidas = 3;
+        let nPuntaje = 0;
+        let nProgreso = 0;
+        let nEstado = 0;
+        do armarCatalogo();
+        do Aleatorio.semilla(semilla);
+        return this;
+    }
+
+    /** Crea los cuatro perfiles: cono, camion, moto y moneda. */
+    method void armarCatalogo() {
+        let catalogo[0] = Perfil.new(0, 1, 1, true, 0);
+        let catalogo[1] = Perfil.new(1, 3, 1, true, 0);
+        let catalogo[2] = Perfil.new(2, 1, 2, true, 0);
+        let catalogo[3] = Perfil.new(3, 1, 1, false, 10);
+        return;
+    }
+
+    /** Libera los obstaculos, los perfiles, los arreglos y la carrera. */
+    method void dispose() {
+        var int i;
+        var Obstaculo o;
+        var Perfil p;
+        let i = 0;
+        while (i < cuantos) {
+            let o = obs[i];
+            do o.dispose();
+            let i = i + 1;
+        }
+        let i = 0;
+        while (i < 4) {
+            let p = catalogo[i];
+            do p.dispose();
+            let i = i + 1;
+        }
+        do obs.dispose();
+        do catalogo.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Solicita un cambio de carril: -1 sube, 1 baja. Otros valores se ignoran. */
+    method void moverCarro(int dir) {
+        if (~(nEstado = 0)) {
+            return;
+        }
+        if ((dir = -1) | (dir = 1)) {
+            let pedido = dir;
+        }
+        return;
+    }
+
+    /** Agrega un obstaculo con su celda izquierda en col, si hay lugar. */
+    method void agregarObstaculo(int tipo, int carril, int col) {
+        var Perfil p;
+        var Obstaculo o;
+        if ((cuantos > 19) | (tipo < 0) | (tipo > 3) | (carril < 0) | (carril > 2)) {
+            return;
+        }
+        let p = catalogo[tipo];
+        let o = Obstaculo.new(p, carril, col);
+        let obs[cuantos] = o;
+        let cuantos = cuantos + 1;
+        return;
+    }
+
+    /** Un paso del juego, en el orden de la seccion 8.3. */
+    method void avanzar() {
+        if (~(nEstado = 0)) {
+            return;
+        }
+        do aplicarPedido();
+        do moverObstaculos();
+        do resolverChoques();
+        if (nVidas = 0) {
+            let nEstado = 1;
+            return;
+        }
+        do quitarSalidas();
+        let nProgreso = nProgreso + 1;
+        let nPuntaje = nPuntaje + 1;
+        if (nProgreso = meta) {
+            let nEstado = 2;
+        }
+        return;
+    }
+
+    /** Aplica el cambio de carril pedido si queda entre 0 y 2, y lo borra. */
+    method void aplicarPedido() {
+        var int nuevo;
+        let nuevo = carrilActual + pedido;
+        if ((~(nuevo < 0)) & (~(nuevo > 2))) {
+            let carrilActual = nuevo;
+        }
+        let pedido = 0;
+        return;
+    }
+
+    /** Cada obstaculo avanza segun su velocidad. */
+    method void moverObstaculos() {
+        var int i;
+        var Obstaculo o;
+        let i = 0;
+        while (i < cuantos) {
+            let o = obs[i];
+            do o.mover();
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Resuelve los choques de este paso: quita vidas o suma puntos. */
+    method void resolverChoques() {
+        var int i;
+        var Obstaculo o;
+        let i = 0;
+        while (i < cuantos) {
+            let o = obs[i];
+            if (o.toca(carrilActual, 2)) {
+                do registrarChoque(o);
+                do eliminar(i);
+            } else {
+                let i = i + 1;
+            }
+        }
+        return;
+    }
+
+    /** Aplica el efecto de un obstaculo que toco el carro. */
+    method void registrarChoque(Obstaculo o) {
+        if (o.letal()) {
+            if (nVidas > 0) {
+                let nVidas = nVidas - 1;
+            }
+        } else {
+            let nPuntaje = nPuntaje + o.puntos();
+        }
+        return;
+    }
+
+    /** Elimina los obstaculos que salieron completos por la izquierda. */
+    method void quitarSalidas() {
+        var int i;
+        var Obstaculo o;
+        let i = 0;
+        while (i < cuantos) {
+            let o = obs[i];
+            if (o.salio()) {
+                do eliminar(i);
+            } else {
+                let i = i + 1;
+            }
+        }
+        return;
+    }
+
+    /** Libera el obstaculo i y lo reemplaza por el ultimo de la lista. */
+    method void eliminar(int i) {
+        var Obstaculo o;
+        let o = obs[i];
+        do o.dispose();
+        let cuantos = cuantos - 1;
+        let obs[i] = obs[cuantos];
+        let obs[cuantos] = 0;
+        return;
+    }
+
+    /** Agrega a lo sumo un obstaculo nuevo en la columna 31 (seccion 8.4). */
+    method void generar() {
+        var int carril, tipo;
+        if (~(nEstado = 0)) {
+            return;
+        }
+        if (~(sortear(32) < 12)) {
+            return;
+        }
+        let carril = sortear(3);
+        if (~(ocupada(carril, 31) = -1)) {
+            return;
+        }
+        let tipo = sortear(4);
+        if ((tipo < 3) & otrosConLetal(carril)) {
+            let tipo = 3;
+        }
+        do agregarObstaculo(tipo, carril, 31);
+        return;
+    }
+
+    /** Numero pseudoaleatorio entre 0 y n - 1. */
+    method int sortear(int n) {
+        var int v;
+        let v = (Aleatorio.siguiente() & 32767) / 8;
+        return v - ((v / n) * n);
+    }
+
+    /** true si cada uno de los otros dos carriles tiene un letal en las columnas 26 a 31. */
+    method boolean otrosConLetal(int carril) {
+        var int a, b;
+        let a = carril + 1;
+        if (a > 2) {
+            let a = a - 3;
+        }
+        let b = carril + 2;
+        if (b > 2) {
+            let b = b - 3;
+        }
+        return hayLetal(a) & hayLetal(b);
+    }
+
+    /** true si el carril tiene un obstaculo letal en alguna celda entre las columnas 26 y 31. */
+    method boolean hayLetal(int carril) {
+        var int i;
+        var Obstaculo o;
+        let i = 0;
+        while (i < cuantos) {
+            let o = obs[i];
+            if (o.enCarril(carril) & o.letal() & o.cubre(26, 31)) {
+                return true;
+            }
+            let i = i + 1;
+        }
+        return false;
+    }
+
+    /** Carril del carro: 0, 1 o 2. */
+    method int carrilCarro() {
+        return carrilActual;
+    }
+
+    /** Tipo del obstaculo que ocupa (carril, col), o -1 si esta libre o fuera de 0 a 31. */
+    method int ocupada(int carril, int col) {
+        var int i;
+        var Obstaculo o;
+        if ((col < 0) | (col > 31)) {
+            return -1;
+        }
+        let i = 0;
+        while (i < cuantos) {
+            let o = obs[i];
+            if (o.ocupa(carril, col)) {
+                return o.tipo();
+            }
+            let i = i + 1;
+        }
+        return -1;
+    }
+
+    /** Vidas que le quedan al jugador. */
+    method int vidas() {
+        return nVidas;
+    }
+
+    /** Puntaje actual. */
+    method int puntaje() {
+        return nPuntaje;
+    }
+
+    /** Pasos completados. */
+    method int progreso() {
+        return nProgreso;
+    }
+
+    /** 0 jugando, 1 derrota, 2 victoria. */
+    method int estado() {
+        return nEstado;
+    }
+
+    /** Cantidad de obstaculos activos. */
+    method int cantidad() {
+        return cuantos;
+    }
+}

@@ -1,0 +1,134 @@
+/*********
+* Juego.jack - Controla el juego: pantalla inicial, bucle de cada partida,
+* teclas (carril, pausa, reinicio y salida) y mensaje final. Une a Carrera
+* (la logica) con Vista (el dibujo) y Teclado (la entrada).
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
+class Juego {
+    field Carrera carrera;
+    field Vista vista;
+    field Teclado teclado;
+    field int meta, semilla;
+    field boolean salir, pausa, reiniciar;
+
+    /** Crea el juego con su vista y su teclado. */
+    constructor Juego new() {
+        let vista = Vista.new();
+        let teclado = Teclado.new();
+        let semilla = 1;
+        let salir = false;
+        return this;
+    }
+
+    /** Libera el juego y los objetos que creo. */
+    method void dispose() {
+        do vista.dispose();
+        do teclado.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Repite: pantalla inicial y partida, hasta que el jugador sale con ESC. */
+    method void ejecutar() {
+        while (~salir) {
+            do elegirMeta();
+            if (~salir) {
+                do jugar();
+            }
+        }
+        do Screen.clearScreen();
+        return;
+    }
+
+    /** Muestra la pantalla inicial y espera la tecla 1, 2 o 3 (o ESC). */
+    method void elegirMeta() {
+        var int tecla;
+        do vista.pantallaInicial();
+        let meta = 0;
+        while ((meta = 0) & (~salir)) {
+            let tecla = teclado.leer();
+            if (tecla = 49) {
+                let meta = 50;
+            }
+            if (tecla = 50) {
+                let meta = 100;
+            }
+            if (tecla = 51) {
+                let meta = 200;
+            }
+            if (tecla = 140) {
+                let salir = true;
+            }
+        }
+        return;
+    }
+
+    /** Una partida completa: crea la carrera, repite los pasos y la libera al terminar. */
+    method void jugar() {
+        let semilla = semilla + 11;
+        let carrera = Carrera.new(meta, semilla);
+        let pausa = false;
+        let reiniciar = false;
+        do vista.dibujarFondo(meta);
+        do vista.actualizar(carrera);
+        while ((carrera.estado() = 0) & (~salir) & (~reiniciar)) {
+            do atenderTeclas();
+            if (~pausa) {
+                do paso();
+            }
+            do Sys.wait(25);
+        }
+        if ((~salir) & (~reiniciar)) {
+            do terminar();
+        }
+        do carrera.dispose();
+        return;
+    }
+
+    /** Un paso: la carrera avanza, aparece a lo sumo un obstaculo y se redibuja. */
+    method void paso() {
+        do carrera.avanzar();
+        do carrera.generar();
+        do vista.actualizar(carrera);
+        return;
+    }
+
+    /** Lee una pulsacion nueva y ejecuta su accion. */
+    method void atenderTeclas() {
+        var int tecla;
+        let tecla = teclado.leer();
+        if (tecla = 131) {
+            do carrera.moverCarro(-1);
+        }
+        if (tecla = 133) {
+            do carrera.moverCarro(1);
+        }
+        if (tecla = 80) {
+            let pausa = ~pausa;
+            do vista.mensajePausa(pausa);
+        }
+        if (tecla = 82) {
+            let reiniciar = true;
+        }
+        if (tecla = 140) {
+            let salir = true;
+        }
+        return;
+    }
+
+    /** Muestra el resultado y espera R (volver al inicio) o ESC (salir). */
+    method void terminar() {
+        var int tecla;
+        do vista.mensajeFinal(carrera.estado(), carrera.puntaje());
+        let tecla = 0;
+        while ((~(tecla = 82)) & (~salir)) {
+            let tecla = teclado.leer();
+            if (tecla = 140) {
+                let salir = true;
+            }
+        }
+        return;
+    }
+}

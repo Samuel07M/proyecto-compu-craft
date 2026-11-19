@@ -1,17 +1,14 @@
-/*********
-* Carrera.jack - Logica del juego de carriles (seccion 8 del enunciado).
-* No usa Screen, Output, Keyboard, Grafico ni Sys.wait, ni directamente ni
-* a traves de las clases que usa: dibujar y leer el teclado lo hacen otras.
-* Autor 1: Juan Diego Martinez Jaramillo
-* Autor 2: Juan Diego Parra Castaneda
-* Autor 3: Samuel Molina Garces
-*********/
+/*
+  Logica del juego de carriles. No usa Screen, Output, Keyboard,
+  Grafico ni Sys.wait, ni directamente ni a traves de las clases 
+  que usa: dibujar y leer el teclado lo hacen otras
+*/
 class Carrera {
     field Array obs, catalogo;
     field int cuantos, carrilActual, pedido, meta;
     field int nVidas, nPuntaje, nProgreso, nEstado;
 
-    /** Carrera nueva: carro en el carril 1, 3 vidas, sin obstaculos. */
+    /* Carrera nueva: carro en el carril 1, 3 vidas, sin obstaculos */
     constructor Carrera new(int pasosMeta, int semilla) {
         let obs = Array.new(20);
         let catalogo = Array.new(4);
@@ -28,7 +25,7 @@ class Carrera {
         return this;
     }
 
-    /** Crea los cuatro perfiles: cono, camion, moto y moneda. */
+    /* Crea los cuatro perfiles: cono, camion, moto y moneda */
     method void armarCatalogo() {
         let catalogo[0] = Perfil.new(0, 1, 1, true, 0);
         let catalogo[1] = Perfil.new(1, 3, 1, true, 0);
@@ -37,7 +34,7 @@ class Carrera {
         return;
     }
 
-    /** Libera los obstaculos, los perfiles, los arreglos y la carrera. */
+    /* Libera los obstaculos, los perfiles, los arreglos y la carrera */
     method void dispose() {
         var int i;
         var Obstaculo o;
@@ -60,7 +57,7 @@ class Carrera {
         return;
     }
 
-    /** Solicita un cambio de carril: -1 sube, 1 baja. Otros valores se ignoran. */
+    /* Solicita un cambio de carril: -1 sube, 1 baja. Otros valores se ignoran */
     method void moverCarro(int dir) {
         if (~(nEstado = 0)) {
             return;
@@ -71,7 +68,7 @@ class Carrera {
         return;
     }
 
-    /** Agrega un obstaculo con su celda izquierda en col, si hay lugar. */
+    /* Agrega un obstaculo con su celda izquierda en col, si hay lugar */
     method void agregarObstaculo(int tipo, int carril, int col) {
         var Perfil p;
         var Obstaculo o;
@@ -85,7 +82,7 @@ class Carrera {
         return;
     }
 
-    /** Un paso del juego, en el orden de la seccion 8.3. */
+    /* Un paso del juego, en el orden de la seccion 8.3 del profe */
     method void avanzar() {
         if (~(nEstado = 0)) {
             return;
@@ -106,7 +103,7 @@ class Carrera {
         return;
     }
 
-    /** Aplica el cambio de carril pedido si queda entre 0 y 2, y lo borra. */
+    /* Aplica el cambio de carril pedido si queda entre 0 y 2, y lo borra */
     method void aplicarPedido() {
         var int nuevo;
         let nuevo = carrilActual + pedido;
@@ -117,7 +114,7 @@ class Carrera {
         return;
     }
 
-    /** Cada obstaculo avanza segun su velocidad. */
+    /* Cada obstaculo avanza segun su velocidad */
     method void moverObstaculos() {
         var int i;
         var Obstaculo o;
@@ -130,7 +127,7 @@ class Carrera {
         return;
     }
 
-    /** Resuelve los choques de este paso: quita vidas o suma puntos. */
+    /* Resuelve los choques de este paso: quita vidas o suma puntos */
     method void resolverChoques() {
         var int i;
         var Obstaculo o;
@@ -147,7 +144,7 @@ class Carrera {
         return;
     }
 
-    /** Aplica el efecto de un obstaculo que toco el carro. */
+    /* Aplica el efecto de un obstaculo que toco el carro */
     method void registrarChoque(Obstaculo o) {
         if (o.letal()) {
             if (nVidas > 0) {
@@ -159,7 +156,7 @@ class Carrera {
         return;
     }
 
-    /** Elimina los obstaculos que salieron completos por la izquierda. */
+    /* Elimina los obstaculos que salieron completos por la izquierda */
     method void quitarSalidas() {
         var int i;
         var Obstaculo o;
@@ -175,7 +172,7 @@ class Carrera {
         return;
     }
 
-    /** Libera el obstaculo i y lo reemplaza por el ultimo de la lista. */
+    /* Libera el obstaculo i y lo reemplaza por el ultimo de la lista */
     method void eliminar(int i) {
         var Obstaculo o;
         let o = obs[i];
@@ -186,7 +183,7 @@ class Carrera {
         return;
     }
 
-    /** Agrega a lo sumo un obstaculo nuevo en la columna 31 (seccion 8.4). */
+    /* Agrega a lo sumo un obstaculo nuevo en la columna 31 (seccion 8.4) */
     method void generar() {
         var int carril, tipo;
         if (~(nEstado = 0)) {
@@ -207,14 +204,14 @@ class Carrera {
         return;
     }
 
-    /** Numero pseudoaleatorio entre 0 y n - 1. */
+    /* Numero pseudoaleatorio entre 0 y n - 1 */
     method int sortear(int n) {
         var int v;
         let v = (Aleatorio.siguiente() & 32767) / 8;
         return v - ((v / n) * n);
     }
 
-    /** true si cada uno de los otros dos carriles tiene un letal en las columnas 26 a 31. */
+    /* true si cada uno de los otros dos carriles tiene un letal en las columnas 26 a 31 */
     method boolean otrosConLetal(int carril) {
         var int a, b;
         let a = carril + 1;
@@ -228,7 +225,7 @@ class Carrera {
         return hayLetal(a) & hayLetal(b);
     }
 
-    /** true si el carril tiene un obstaculo letal en alguna celda entre las columnas 26 y 31. */
+    /* true si el carril tiene un obstaculo letal en alguna celda entre las columnas 26 y 31 */
     method boolean hayLetal(int carril) {
         var int i;
         var Obstaculo o;
@@ -243,12 +240,12 @@ class Carrera {
         return false;
     }
 
-    /** Carril del carro: 0, 1 o 2. */
+    /* Carril del carro: 0, 1 o 2 */
     method int carrilCarro() {
         return carrilActual;
     }
 
-    /** Tipo del obstaculo que ocupa (carril, col), o -1 si esta libre o fuera de 0 a 31. */
+    /* Tipo del obstaculo que ocupa (carril, col), o -1 si esta libre o fuera de 0 a 31 */
     method int ocupada(int carril, int col) {
         var int i;
         var Obstaculo o;
@@ -266,27 +263,27 @@ class Carrera {
         return -1;
     }
 
-    /** Vidas que le quedan al jugador. */
+    /* Vidas que le quedan al jugador */
     method int vidas() {
         return nVidas;
     }
 
-    /** Puntaje actual. */
+    /* Puntaje actual */
     method int puntaje() {
         return nPuntaje;
     }
 
-    /** Pasos completados. */
+    /* Pasos completados */
     method int progreso() {
         return nProgreso;
     }
 
-    /** 0 jugando, 1 derrota, 2 victoria. */
+    /* 0 jugando, 1 derrota, 2 victoria */
     method int estado() {
         return nEstado;
     }
 
-    /** Cantidad de obstaculos activos. */
+    /* Cantidad de obstaculos activos */
     method int cantidad() {
         return cuantos;
     }

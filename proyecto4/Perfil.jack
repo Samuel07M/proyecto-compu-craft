@@ -1,7 +1,10 @@
 /*
-  Datos de un tipo de obstaculo: largo en celdas, velocidad,
+  Perfil.jack - Datos de un tipo de obstaculo: largo en celdas, velocidad,
   si quita vidas y cuantos puntos da. Los cuatro tipos del juego (cono,
   camion, moto y moneda) son cuatro objetos Perfil, no cuatro clases.
+  Autor 1: Juan Diego Martinez Jaramillo
+  Autor 2: Juan Diego Parra Castaneda
+  Autor 3: Samuel Molina Garces
 */
 class Perfil {
     field int miTipo, miLargo, miVelocidad, misPuntos;

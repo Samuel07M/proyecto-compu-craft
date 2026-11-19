@@ -1,7 +1,10 @@
 /*
-  Logica del juego de carriles. No usa Screen, Output, Keyboard,
-  Grafico ni Sys.wait, ni directamente ni a traves de las clases 
-  que usa: dibujar y leer el teclado lo hacen otras
+  Carrera.jack - Logica del juego de carriles (seccion 8 del enunciado).
+  No usa Screen, Output, Keyboard, Grafico ni Sys.wait, ni directamente ni
+  a traves de las clases que usa: dibujar y leer el teclado lo hacen otras.
+  Autor 1: Juan Diego Martinez Jaramillo
+  Autor 2: Juan Diego Parra Castaneda
+  Autor 3: Samuel Molina Garces
 */
 class Carrera {
     field Array obs, catalogo;

@@ -1,7 +1,10 @@
 /*
-  Un obstaculo en la via y es la unica clase de obstaculos: lo que cambia 
-  entre un cono, un camion, una moto y una moneda lo decide el objeto 
-  Perfil que contiene, no el codigo de la clase
+  Obstaculo.jack - Un obstaculo en la via. Es la unica clase de obstaculos:
+  lo que cambia entre un cono, un camion, una moto y una moneda lo decide el
+  objeto Perfil que contiene (composicion), no el codigo de la clase.
+  Autor 1: Juan Diego Martinez Jaramillo
+  Autor 2: Juan Diego Parra Castaneda
+  Autor 3: Samuel Molina Garces
 */
 class Obstaculo {
     field Perfil perfil;

@@ -1,6 +1,10 @@
 // Aleatorio.vm - Generador pseudoaleatorio escrito a mano en lenguaje VM.
 // Estado x de 16 bits: semilla hace x = s; siguiente hace x = 5x + 3 y
-// retorna x. No usa Math.multiply, ya que 5x se calcula con cuatro sumas.
+// retorna x. No usa Math.multiply: 5x se calcula con cuatro sumas.
+// Autor 1: Juan Diego Martinez Jaramillo
+// Autor 2: Juan Diego Parra Castaneda
+// Autor 3: Samuel Molina Garces
+
 // semilla(s): guarda s como estado y retorna 0
 function Aleatorio.semilla 0
 push argument 0

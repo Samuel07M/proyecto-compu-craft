@@ -1,0 +1,156 @@
+// Grafico.vm - Rutinas graficas escritas a mano en lenguaje VM (seccion 9).
+// Dibuja y borra celdas de 16x16 pixeles en la memoria de video y desplaza
+// una fila de celdas. La pantalla empieza en la direccion 16384; cada fila
+// de celdas ocupa 512 palabras y cada linea de una celda, 32 palabras.
+// No usa Memory.poke, Memory.peek ni Math.multiply: la memoria se accede con
+// los segmentos this y that, y la multiplicacion por 512 se hace con sumas.
+// Autor 1: Juan Diego Martinez Jaramillo
+// Autor 2: Juan Diego Parra Castaneda
+// Autor 3: Samuel Molina Garces
+
+// direccion(fila, col): direccion de la linea 0 de la celda (fila, col).
+//   16384 + fila*512 + col; fila*512 se calcula sumando fila consigo misma 9 veces.
+//   local 0 = veces que faltan por duplicar, local 1 = fila*512 acumulado
+function Grafico.direccion 2
+push argument 0
+pop local 1
+push constant 9
+pop local 0
+label DOBLAR
+push local 0
+push constant 0
+eq
+if-goto DOBLADO
+push local 1
+push local 1
+add
+pop local 1
+push local 0
+push constant 1
+sub
+pop local 0
+goto DOBLAR
+label DOBLADO
+push local 1
+push argument 1
+add
+push constant 16384
+add
+return
+
+// dibujarCelda(fila, col, sprite): copia sprite[k] a la linea k de la celda.
+//   that apunta a la linea actual en pantalla y this a la palabra del sprite.
+//   Revisa el contador antes de avanzar para no salir de la pantalla en la fila 15.
+//   local 0 = lineas que faltan por copiar
+function Grafico.dibujarCelda 1
+push argument 0
+push argument 1
+call Grafico.direccion 2
+pop pointer 1
+push argument 2
+pop pointer 0
+push constant 16
+pop local 0
+label COPIAR
+push this 0
+pop that 0
+push local 0
+push constant 1
+sub
+pop local 0
+push local 0
+push constant 0
+eq
+if-goto COPIADO
+push pointer 0
+push constant 1
+add
+pop pointer 0
+push pointer 1
+push constant 32
+add
+pop pointer 1
+goto COPIAR
+label COPIADO
+push constant 0
+return
+
+// borrarCelda(fila, col): pone en 0 las 16 palabras de la celda.
+//   local 0 = lineas ya borradas (empieza en 0)
+function Grafico.borrarCelda 1
+push argument 0
+push argument 1
+call Grafico.direccion 2
+pop pointer 1
+label BORRAR
+push constant 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+push local 0
+push constant 16
+eq
+if-goto BORRADO
+push pointer 1
+push constant 32
+add
+pop pointer 1
+goto BORRAR
+label BORRADO
+push constant 0
+return
+
+// desplazarFila(fila): en cada una de las 16 lineas de la fila de celdas rota
+//   las 32 palabras una posicion a la izquierda: w[c] = w[c+1], w[31] = w[0].
+//   that recorre las palabras; las lineas estan seguidas en memoria.
+//   local 0 = lineas que faltan, local 1 = movimientos que faltan en la
+//   linea, local 2 = primera palabra de la linea
+function Grafico.desplazarFila 3
+push argument 0
+push constant 0
+call Grafico.direccion 2
+pop pointer 1
+push constant 16
+pop local 0
+label LINEA
+push that 0
+pop local 2
+push constant 31
+pop local 1
+label PALABRA
+push local 1
+push constant 0
+eq
+if-goto ULTIMA
+push that 1
+pop that 0
+push pointer 1
+push constant 1
+add
+pop pointer 1
+push local 1
+push constant 1
+sub
+pop local 1
+goto PALABRA
+label ULTIMA
+push local 2
+pop that 0
+push local 0
+push constant 1
+eq
+if-goto TERMINADO
+push local 0
+push constant 1
+sub
+pop local 0
+push pointer 1
+push constant 1
+add
+pop pointer 1
+goto LINEA
+label TERMINADO
+push constant 0
+return

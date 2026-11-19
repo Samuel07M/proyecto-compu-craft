@@ -103,24 +103,48 @@ push constant 0
 return
 
 // desplazarFila(fila): en cada una de las 16 lineas de la fila de celdas rota
-//   las 32 palabras una posicion a la izquierda: w[c] = w[c+1], w[31] = w[0].
-//   that recorre las palabras; las lineas estan seguidas en memoria.
-//   local 0 = lineas que faltan, local 1 = movimientos que faltan en la
-//   linea, local 2 = primera palabra de la linea
-function Grafico.desplazarFila 3
+//   las 32 palabras una posicion a la izquierda (usa rotarLinea).
+//   local 0 = direccion de la linea actual, local 1 = lineas que faltan
+function Grafico.desplazarFila 2
 push argument 0
 push constant 0
 call Grafico.direccion 2
-pop pointer 1
-push constant 16
 pop local 0
-label LINEA
-push that 0
-pop local 2
-push constant 31
+push constant 16
 pop local 1
-label PALABRA
+label LINEA
+push local 0
+call Grafico.rotarLinea 1
+pop temp 0
 push local 1
+push constant 1
+sub
+pop local 1
+push local 1
+push constant 0
+eq
+if-goto TERMINADO
+push local 0
+push constant 32
+add
+pop local 0
+goto LINEA
+label TERMINADO
+push constant 0
+return
+
+// rotarLinea(dir): rota una linea de 32 palabras que empieza en dir:
+//   w[c] = w[c+1] y w[31] = w[0]. that recorre las palabras.
+//   local 0 = movimientos que faltan, local 1 = copia de w[0]
+function Grafico.rotarLinea 2
+push argument 0
+pop pointer 1
+push that 0
+pop local 1
+push constant 31
+pop local 0
+label PALABRA
+push local 0
 push constant 0
 eq
 if-goto ULTIMA
@@ -130,27 +154,13 @@ push pointer 1
 push constant 1
 add
 pop pointer 1
-push local 1
-push constant 1
-sub
-pop local 1
-goto PALABRA
-label ULTIMA
-push local 2
-pop that 0
-push local 0
-push constant 1
-eq
-if-goto TERMINADO
 push local 0
 push constant 1
 sub
 pop local 0
-push pointer 1
-push constant 1
-add
-pop pointer 1
-goto LINEA
-label TERMINADO
+goto PALABRA
+label ULTIMA
+push local 1
+pop that 0
 push constant 0
 return

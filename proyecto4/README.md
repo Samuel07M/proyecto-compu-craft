@@ -7,11 +7,11 @@ El jugador conduce un carro por una vía de tres carriles y esquiva conos, camio
 
 # Integrantes
 
-| Nombre |  Aportes principales |
-|---|---|
-| Juan Diego Martínez Jaramillo | Clases `Perfil`, `Obstaculo` y `Carrera` (lógica del juego), `Aleatorio.vm` y clase `Juego` (bucle, teclas, pausa y reinicio). |
-| Juan Diego Parra Castañeda |  Rutinas VM escritas a mano en `Grafico.vm` (`dibujarCelda`, `borrarCelda` y `desplazarFila`), ajustes a `Aleatorio.vm` y clase `Vista` (dibujo de la vía, obstáculos, marcador, barra de progreso y mensajes). |
-| Samuel Molina Garcés | Clases `Teclado` (lectura por pulsación), `Sprites` (dibujos de 16 × 16) y `Main`; estructura de la carpeta `proyecto4/`, reglas de calidad de código (sección 12), pruebas y `README.md`. |
+| Nombre | Usuario de GitHub | Aportes principales |
+|---|---|---|
+| Juan Diego Martínez Jaramillo | [Juanea2008](https://github.com/Juanea2008) | Clases `Perfil`, `Obstaculo` y `Carrera` (lógica del juego), `Aleatorio.vm` y clase `Juego` (bucle, teclas, pausa y reinicio). |
+| Juan Diego Parra Castañeda | [JuanD1847](https://github.com/JuanD1847) | Rutinas VM escritas a mano en `Grafico.vm` (`dibujarCelda`, `borrarCelda` y `desplazarFila`), ajustes a `Aleatorio.vm` y clase `Vista` (dibujo de la vía, obstáculos, marcador, barra de progreso y mensajes). |
+| Samuel Molina Garcés | [Samuel07M](https://github.com/Samuel07M) | Clases `Teclado` (lectura por pulsación), `Sprites` (dibujos de 16 × 16) y `Main`; estructura de la carpeta `proyecto4/`, reglas de calidad de código (sección 12), pruebas y `README.md`. |
 
 # Compilación y ejecución
 
@@ -109,12 +109,13 @@ Todas están escritas a mano. No usan `Memory.poke`, `Memory.peek` ni `Math.mult
 | `Grafico.dibujarCelda(fila, col, sprite)` | `Grafico.vm` | Copia las 16 palabras del sprite a la celda: `RAM[16384 + fila*512 + k*32 + col] = sprite[k]`. `this` recorre el sprite y `that` recorre la pantalla. | `Vista.celda` (carro y obstáculos), `Vista.dibujarFondo` (bordes y divisorias) y `Vista.barra` (barra de progreso). |
 | `Grafico.direccion(fila, col)` | `Grafico.vm` | Función auxiliar: calcula `16384 + fila*512 + col`. `fila*512` se obtiene duplicando la fila 9 veces. | `dibujarCelda`, `borrarCelda` y `desplazarFila`. |
 | `Grafico.borrarCelda(fila, col)` (bono) | `Grafico.vm` | Pone en 0 las 16 palabras de la celda. | `Vista.celda`, cuando una celda de la vía queda vacía. |
-| `Grafico.desplazarFila(fila)` (bono) | `Grafico.vm` | En cada una de las 16 líneas de la fila de celdas rota las 32 palabras una posición a la izquierda: `w[c] = w[c+1]` y `w[31] = w[0]`. | `Vista.moverDivisorias`, para que las líneas divisorias se muevan. |
+| `Grafico.desplazarFila(fila)` (bono) | `Grafico.vm` | En cada una de las 16 líneas de la fila de celdas rota las 32 palabras una posición a la izquierda: `w[c] = w[c+1]` y `w[31] = w[0]`. Recorre las 16 líneas y llama a `rotarLinea` en cada una. | `Vista.moverDivisorias`, para que las líneas divisorias se muevan. |
+| `Grafico.rotarLinea(dir)` | `Grafico.vm` | Función auxiliar: rota una línea de 32 palabras que empieza en la dirección `dir`. `that` recorre las palabras. | `desplazarFila`. |
 | `Aleatorio.semilla(s)` (bono) | `Aleatorio.vm` | Guarda `s` como estado `x` (en `static 0`). | `Carrera.new`, con la semilla de la partida. |
 | `Aleatorio.siguiente()` (bono) | `Aleatorio.vm` | Hace `x = 5x + 3` con aritmética de 16 bits y retorna `x`. `5x` se calcula como `2x + 2x + x`. | `Carrera.sortear`, que usa `generar()` para elegir si aparece un obstáculo, su carril y su tipo. |
 
 # Uso de IA
 
 - **Herramienta:** Claude (Anthropic).
-- **Para qué:** revisar el avance del proyecto contra el enunciado, encontrar y corregir un error en `Grafico.vm` (el puntero `that` se salía de la pantalla al dibujar o borrar en la fila 15), quitar bloques repetidos en los archivos `.vm` (regla de duplicación), ajustar la posición de dos textos de `Vista.jack` que no cabían en la pantalla, correr las pruebas públicas y redactar este `README.md`.
+- **Para qué:** revisar el avance del proyecto contra el enunciado, encontrar y corregir un error en `Grafico.vm` (el puntero `that` se salía de la pantalla al dibujar o borrar en la fila 15), quitar bloques repetidos en los archivos `.vm` (regla de duplicación), dividir `desplazarFila` en dos funciones para cumplir el máximo de 40 líneas por subrutina, ajustar la posición de dos textos de `Vista.jack` que no cabían en la pantalla, correr las pruebas públicas y redactar este `README.md`.
 - Todos los integrantes revisaron estos cambios y pueden explicar cada línea del proyecto.

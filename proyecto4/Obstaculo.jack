@@ -1,16 +1,16 @@
-/*
-  Obstaculo.jack - Un obstaculo en la via. Es la unica clase de obstaculos:
-  lo que cambia entre un cono, un camion, una moto y una moneda lo decide el
-  objeto Perfil que contiene (composicion), no el codigo de la clase.
-  Autor 1: Juan Diego Martinez Jaramillo
-  Autor 2: Juan Diego Parra Castaneda
-  Autor 3: Samuel Molina Garces
-*/
+/*********
+* Obstaculo.jack - Un obstaculo en la via. Es la unica clase de obstaculos:
+* lo que cambia entre un cono, un camion, una moto y una moneda lo decide el
+* objeto Perfil que contiene (composicion), no el codigo de la clase.
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
 class Obstaculo {
     field Perfil perfil;
     field int miCarril, miCol, colPrevia;
 
-    /* Crea un obstaculo con su celda izquierda en la columna col */
+    /** Crea un obstaculo con su celda izquierda en la columna col. */
     constructor Obstaculo new(Perfil p, int carril, int col) {
         let perfil = p;
         let miCarril = carril;
@@ -19,59 +19,74 @@ class Obstaculo {
         return this;
     }
 
-    /* Libera el obstaculo. El perfil es compartido y lo libera Carrera */
+    /** Libera el obstaculo. El perfil es compartido y lo libera Carrera. */
     method void dispose() {
         do Memory.deAlloc(this);
         return;
     }
 
-    /* Tipo del obstaculo (0 a 3) */
+    /** Tipo del obstaculo (0 a 3). */
     method int tipo() {
         return perfil.tipo();
     }
 
-    /* true si quita una vida */
+    /** true si quita una vida. */
     method boolean letal() {
         return perfil.letal();
     }
 
-    /* Puntos que da al ser recogido */
+    /** Puntos que da al ser recogido. */
     method int puntos() {
         return perfil.puntos();
     }
 
-    /* Guarda la columna actual y avanza a la izquierda segun su velocidad */
+    /** Carril en el que va el obstaculo (0, 1 o 2). */
+    method int carril() {
+        return miCarril;
+    }
+
+    /** Columna de su celda izquierda. */
+    method int col() {
+        return miCol;
+    }
+
+    /** Largo en celdas. */
+    method int largo() {
+        return perfil.largo();
+    }
+
+    /** Guarda la columna actual y avanza a la izquierda segun su velocidad. */
     method void mover() {
         let colPrevia = miCol;
         let miCol = miCol - perfil.velocidad();
         return;
     }
 
-    /* true si el obstaculo esta en ese carril */
+    /** true si el obstaculo esta en ese carril. */
     method boolean enCarril(int carril) {
         return carril = miCarril;
     }
 
-    /* true si alguna celda del obstaculo esta entre las columnas a y b */
+    /** true si alguna celda del obstaculo esta entre las columnas a y b. */
     method boolean cubre(int a, int b) {
         var int derecha;
         let derecha = (miCol + perfil.largo()) - 1;
         return (~(miCol > b)) & (~(derecha < a));
     }
 
-    /* true si el obstaculo ocupa la celda (carril, col) */
+    /** true si el obstaculo ocupa la celda (carril, col). */
     method boolean ocupa(int carril, int col) {
         return enCarril(carril) & cubre(col, col);
     }
 
-    /* true si en su ultimo movimiento paso por la columna del carro */
+    /** true si en su ultimo movimiento paso por la columna del carro. */
     method boolean toca(int carril, int colCarro) {
         var int derechaPrevia;
         let derechaPrevia = (colPrevia + perfil.largo()) - 1;
         return enCarril(carril) & (~(miCol > colCarro)) & (~(derechaPrevia < colCarro));
     }
 
-    /* true si ya salio completo por la izquierda de la pantalla */
+    /** true si ya salio completo por la izquierda de la pantalla. */
     method boolean salio() {
         return ((miCol + perfil.largo()) - 1) < 0;
     }

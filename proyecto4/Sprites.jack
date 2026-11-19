@@ -1,0 +1,243 @@
+/*********
+* Sprites.jack - Dibujos de 16x16 pixeles de las celdas del juego. Cada
+* sprite es un Array de 16 palabras (una por linea); el bit 0 de cada palabra
+* es el pixel de la izquierda. Solo guarda datos: no dibuja nada.
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
+class Sprites {
+    field Array todos;
+    field Array miBorde, miGuion, miBarra;
+
+    /** Crea todos los sprites: los 5 de la via (por codigo), el borde, el guion y la barra. */
+    constructor Sprites new() {
+        let todos = Array.new(5);
+        let todos[0] = crearCono();
+        let todos[1] = crearCamion();
+        let todos[2] = crearMoto();
+        let todos[3] = crearMoneda();
+        let todos[4] = crearCarro();
+        let miBorde = crearBorde();
+        let miGuion = crearGuion();
+        let miBarra = crearBarra();
+        return this;
+    }
+
+    /** Libera los sprites. */
+    method void dispose() {
+        var int i;
+        var Array a;
+        let i = 0;
+        while (i < 5) {
+            let a = todos[i];
+            do a.dispose();
+            let i = i + 1;
+        }
+        do todos.dispose();
+        do miBorde.dispose();
+        do miGuion.dispose();
+        do miBarra.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Sprite de la via segun su codigo: 0 cono, 1 camion, 2 moto, 3 moneda, 4 carro. */
+    method Array de(int codigo) {
+        var Array a;
+        let a = todos[codigo];
+        return a;
+    }
+
+    /** Sprite del borde de la via. */
+    method Array borde() {
+        return miBorde;
+    }
+
+    /** Sprite de la linea divisoria. */
+    method Array guion() {
+        return miGuion;
+    }
+
+    /** Sprite de una celda llena de la barra de progreso. */
+    method Array barra() {
+        return miBarra;
+    }
+
+    /** Dibujo del cono. */
+    method Array crearCono() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = 384;
+        let a[3] = 384;
+        let a[4] = 960;
+        let a[5] = 960;
+        let a[6] = 2016;
+        let a[7] = 1632;
+        let a[8] = 4080;
+        let a[9] = 4080;
+        let a[10] = 8184;
+        let a[11] = 8184;
+        let a[12] = 16380;
+        let a[13] = 16380;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+    /** Dibujo de una celda del camion. */
+    method Array crearCamion() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = -1;
+        let a[3] = -1;
+        let a[4] = -16381;
+        let a[5] = -2341;
+        let a[6] = -16381;
+        let a[7] = -1;
+        let a[8] = -1;
+        let a[9] = -1;
+        let a[10] = -1;
+        let a[11] = 15420;
+        let a[12] = 15420;
+        let a[13] = 0;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+    /** Dibujo de la moto. */
+    method Array crearMoto() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = 0;
+        let a[3] = 1536;
+        let a[4] = 768;
+        let a[5] = 16352;
+        let a[6] = 32752;
+        let a[7] = 13260;
+        let a[8] = 31710;
+        let a[9] = -31135;
+        let a[10] = -31711;
+        let a[11] = 30750;
+        let a[12] = 0;
+        let a[13] = 0;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+    /** Dibujo de la moneda. */
+    method Array crearMoneda() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = 2016;
+        let a[3] = 4080;
+        let a[4] = 7224;
+        let a[5] = 15324;
+        let a[6] = 15324;
+        let a[7] = 15324;
+        let a[8] = 15324;
+        let a[9] = 15324;
+        let a[10] = 15324;
+        let a[11] = 7224;
+        let a[12] = 4080;
+        let a[13] = 2016;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+    /** Dibujo del carro del jugador. */
+    method Array crearCarro() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = 0;
+        let a[3] = 2016;
+        let a[4] = 4080;
+        let a[5] = 8184;
+        let a[6] = 32766;
+        let a[7] = -1;
+        let a[8] = -1057;
+        let a[9] = -1;
+        let a[10] = -1;
+        let a[11] = 15420;
+        let a[12] = 15420;
+        let a[13] = 0;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+    /** Dibujo del borde de la via. */
+    method Array crearBorde() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = 0;
+        let a[3] = 0;
+        let a[4] = 0;
+        let a[5] = 0;
+        let a[6] = -1;
+        let a[7] = -1;
+        let a[8] = -1;
+        let a[9] = -1;
+        let a[10] = 0;
+        let a[11] = 0;
+        let a[12] = 0;
+        let a[13] = 0;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+    /** Dibujo de un trazo de la linea divisoria. */
+    method Array crearGuion() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = 0;
+        let a[3] = 0;
+        let a[4] = 0;
+        let a[5] = 0;
+        let a[6] = 0;
+        let a[7] = -1;
+        let a[8] = -1;
+        let a[9] = 0;
+        let a[10] = 0;
+        let a[11] = 0;
+        let a[12] = 0;
+        let a[13] = 0;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+    /** Dibujo de una celda de la barra de progreso. */
+    method Array crearBarra() {
+        var Array a;
+        let a = Array.new(16);
+        let a[0] = 0;
+        let a[1] = 0;
+        let a[2] = 0;
+        let a[3] = 0;
+        let a[4] = 16380;
+        let a[5] = 16380;
+        let a[6] = 16380;
+        let a[7] = 16380;
+        let a[8] = 16380;
+        let a[9] = 16380;
+        let a[10] = 16380;
+        let a[11] = 16380;
+        let a[12] = 0;
+        let a[13] = 0;
+        let a[14] = 0;
+        let a[15] = 0;
+        return a;
+    }
+}

@@ -1,0 +1,34 @@
+/*********
+* Teclado.jack - Lectura del teclado por pulsaciones. keyPressed devuelve el
+* codigo mientras la tecla esta oprimida; esta clase avisa una sola vez por
+* pulsacion (cuando el codigo cambia de otro valor al codigo de la tecla).
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
+class Teclado {
+    field int anterior;
+
+    /** Crea el lector sin ninguna tecla oprimida. */
+    constructor Teclado new() {
+        let anterior = 0;
+        return this;
+    }
+
+    /** Libera el lector. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Codigo de la tecla recien oprimida, o 0 si no hay una pulsacion nueva. */
+    method int leer() {
+        var int actual;
+        let actual = Keyboard.keyPressed();
+        if (actual = anterior) {
+            return 0;
+        }
+        let anterior = actual;
+        return actual;
+    }
+}

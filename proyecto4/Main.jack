@@ -1,0 +1,17 @@
+/*********
+* Main.jack - Punto de entrada: solo crea el juego, lo ejecuta y lo libera.
+* Ninguna otra clase llama a Main.
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
+class Main {
+    /** Crea el juego, lo ejecuta hasta que el jugador sale y lo libera. */
+    function void main() {
+        var Juego j;
+        let j = Juego.new();
+        do j.ejecutar();
+        do j.dispose();
+        return;
+    }
+}

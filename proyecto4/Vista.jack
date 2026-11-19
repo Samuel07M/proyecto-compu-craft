@@ -1,0 +1,240 @@
+/*********
+* Vista.jack - Todo lo que se dibuja: via, obstaculos, carro, marcador, barra
+* de progreso y mensajes. Solo lee de Carrera; nunca la modifica. Guarda lo
+* ultimo que dibujo en cada celda de la via y vuelve a dibujar solo las que
+* cambiaron. Usa Grafico.dibujarCelda, Grafico.borrarCelda y
+* Grafico.desplazarFila, que estan escritas a mano en VM (Grafico.vm).
+* Autor 1: Juan Diego Martinez Jaramillo
+* Autor 2: Juan Diego Parra Castaneda
+* Autor 3: Samuel Molina Garces
+*********/
+class Vista {
+    field Sprites sprites;
+    field Array previo, actual;
+    field String blanco3, blanco5;
+    field int meta, llenas, ultVidas, ultPuntos, ultPasos, tic;
+
+    /** Crea la vista con sus sprites y los arreglos de 96 celdas (3 carriles x 32 columnas). */
+    constructor Vista new() {
+        let sprites = Sprites.new();
+        let previo = Array.new(96);
+        let actual = Array.new(96);
+        let blanco3 = "   ";
+        let blanco5 = "     ";
+        let meta = 1;
+        return this;
+    }
+
+    /** Libera la vista y todo lo que creo. */
+    method void dispose() {
+        do sprites.dispose();
+        do previo.dispose();
+        do actual.dispose();
+        do blanco3.dispose();
+        do blanco5.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Escribe un texto en la fila y columna de caracteres dadas y libera el texto. */
+    method void texto(int fila, int col, String s) {
+        do Output.moveCursor(fila, col);
+        do Output.printString(s);
+        do s.dispose();
+        return;
+    }
+
+    /** Pantalla inicial: titulo, instrucciones y las tres distancias de meta. */
+    method void pantallaInicial() {
+        do Screen.clearScreen();
+        do texto(3, 24, "CARRERA DE TRES CARRILES");
+        do texto(6, 5, "Esquiva conos, camiones y motos. Recoge monedas (+10).");
+        do texto(8, 14, "Tienes 3 vidas. Llega a la meta para ganar.");
+        do texto(11, 14, "Flechas arriba / abajo: cambiar de carril");
+        do texto(12, 14, "P: pausa    R: reiniciar    ESC: salir");
+        do texto(15, 14, "Elige la distancia a la meta:");
+        do texto(17, 18, "1) Corta  (50 pasos)");
+        do texto(18, 18, "2) Media  (100 pasos)");
+        do texto(19, 18, "3) Larga  (200 pasos)");
+        return;
+    }
+
+    /** Dibuja el fondo de la partida: bordes, divisorias, marcador y controles. */
+    method void dibujarFondo(int pasosMeta) {
+        var int i;
+        do Screen.clearScreen();
+        let meta = pasosMeta;
+        let i = 0;
+        while (i < 32) {
+            do Grafico.dibujarCelda(4, i, sprites.borde());
+            do Grafico.dibujarCelda(10, i, sprites.borde());
+            if ((i & 1) = 0) {
+                do Grafico.dibujarCelda(6, i, sprites.guion());
+                do Grafico.dibujarCelda(8, i, sprites.guion());
+            }
+            let previo[i] = 5;
+            let previo[i + 32] = 5;
+            let previo[i + 64] = 5;
+            let i = i + 1;
+        }
+        do textosFijos();
+        let llenas = 0;
+        let ultVidas = -1;
+        let ultPuntos = -1;
+        let ultPasos = -1;
+        let tic = 0;
+        return;
+    }
+
+    /** Escribe los rotulos del marcador, la meta y los controles. */
+    method void textosFijos() {
+        do texto(0, 2, "Vidas:");
+        do texto(0, 16, "Puntos:");
+        do texto(1, 2, "Pasos:");
+        do texto(1, 13, "de");
+        do Output.moveCursor(1, 16);
+        do Output.printInt(meta);
+        do texto(17, 5, "Flechas: carril   P: pausa   R: reiniciar   ESC: salir");
+        return;
+    }
+
+    /** Actualiza solo lo que cambio: celdas de la via, marcador, barra y divisorias. */
+    method void actualizar(Carrera c) {
+        do vaciarActual();
+        do pintarObstaculos(c);
+        let actual[(c.carrilCarro() * 32) + 2] = 4;
+        do redibujar();
+        do marcador(c);
+        do barra(c);
+        do moverDivisorias();
+        return;
+    }
+
+    /** Marca todas las celdas de la via como vacias en el cuadro nuevo. */
+    method void vaciarActual() {
+        var int i;
+        let i = 0;
+        while (i < 96) {
+            let actual[i] = 5;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Anota en el cuadro nuevo el tipo de cada obstaculo en las celdas que ocupa. */
+    method void pintarObstaculos(Carrera c) {
+        var int i, k, col;
+        var Obstaculo o;
+        let i = 0;
+        while (i < c.cantidad()) {
+            let o = c.obstaculo(i);
+            let k = 0;
+            while (k < o.largo()) {
+                let col = o.col() + k;
+                if ((~(col < 0)) & (~(col > 31))) {
+                    let actual[(o.carril() * 32) + col] = o.tipo();
+                }
+                let k = k + 1;
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Dibuja las celdas del cuadro nuevo que son distintas de las ya dibujadas. */
+    method void redibujar() {
+        var int i, carril;
+        let i = 0;
+        while (i < 96) {
+            if (~(actual[i] = previo[i])) {
+                let carril = i / 32;
+                do celda(5 + (carril * 2), i - (carril * 32), actual[i]);
+                let previo[i] = actual[i];
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Dibuja una celda: el sprite del codigo dado, o la borra si esta vacia (codigo 5). */
+    method void celda(int fila, int col, int codigo) {
+        if (codigo = 5) {
+            do Grafico.borrarCelda(fila, col);
+        } else {
+            do Grafico.dibujarCelda(fila, col, sprites.de(codigo));
+        }
+        return;
+    }
+
+    /** Muestra vidas, puntaje y pasos cuando cambian. */
+    method void marcador(Carrera c) {
+        if (~(c.vidas() = ultVidas)) {
+            let ultVidas = c.vidas();
+            do Output.moveCursor(0, 9);
+            do Output.printInt(ultVidas);
+        }
+        if (~(c.puntaje() = ultPuntos)) {
+            let ultPuntos = c.puntaje();
+            do numero(0, 24, ultPuntos, blanco5);
+        }
+        if (~(c.progreso() = ultPasos)) {
+            let ultPasos = c.progreso();
+            do numero(1, 9, ultPasos, blanco3);
+        }
+        return;
+    }
+
+    /** Escribe un numero borrando antes el espacio que ocupa. */
+    method void numero(int fila, int col, int valor, String blancos) {
+        do Output.moveCursor(fila, col);
+        do Output.printString(blancos);
+        do Output.moveCursor(fila, col);
+        do Output.printInt(valor);
+        return;
+    }
+
+    /** Llena la barra de progreso (fila de celdas 2) segun los pasos completados. */
+    method void barra(Carrera c) {
+        var int hasta;
+        let hasta = (c.progreso() * 32) / meta;
+        while (llenas < hasta) {
+            do Grafico.dibujarCelda(2, llenas, sprites.barra());
+            let llenas = llenas + 1;
+        }
+        return;
+    }
+
+    /** Hace correr las lineas divisorias: cada dos cuadros rota las filas 6 y 8. */
+    method void moverDivisorias() {
+        let tic = tic + 1;
+        if (tic > 1) {
+            let tic = 0;
+            do Grafico.desplazarFila(6);
+            do Grafico.desplazarFila(8);
+        }
+        return;
+    }
+
+    /** Muestra u oculta el aviso de pausa. */
+    method void mensajePausa(boolean pausada) {
+        if (pausada) {
+            do texto(20, 28, "PAUSA");
+        } else {
+            do texto(20, 28, "     ");
+        }
+        return;
+    }
+
+    /** Mensaje final: resultado, puntaje y como jugar de nuevo. */
+    method void mensajeFinal(int estado, int puntaje) {
+        if (estado = 2) {
+            do texto(19, 24, "VICTORIA! Llegaste a la meta");
+        } else {
+            do texto(19, 24, "DERROTA. Te quedaste sin vidas");
+        }
+        do texto(20, 24, "Puntaje:");
+        do Output.printInt(puntaje);
+        do texto(22, 18, "R: volver al inicio     ESC: salir");
+        return;
+    }
+}
